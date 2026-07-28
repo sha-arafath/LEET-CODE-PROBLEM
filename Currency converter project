@@ -1,0 +1,124 @@
+import java.util.Scanner;
+
+public class CurrencyConverter {
+
+    // Currencies, Names, and their Exchange Rate relative to 1 USD
+    static final String[] CODES = {
+        "USD", "INR", "EUR", "GBP", "AUD", "CAD", "JPY", "CNY", "AED", "SGD"
+    };
+
+    static final String[] NAMES = {
+        "US Dollar", "Indian Rupee", "Euro", "British Pound", "Australian Dollar",
+        "Canadian Dollar", "Japanese Yen", "Chinese Yuan", "UAE Dirham", "Singapore Dollar"
+    };
+
+    // Rates relative to 1 USD
+    static final double[] RATES_TO_USD = {
+        1.0, 86.84, 0.96, 0.80, 1.59, 1.44, 155.38, 7.25, 3.67, 1.35
+    };
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        boolean running = true;
+
+        System.out.println("=================================");
+        System.out.println("  Welcome to Currency Converter  ");
+        System.out.println("=================================");
+
+        while (running) {
+            System.out.println("\n--- MENU ---");
+            System.out.println("1. Display Available Currencies");
+            System.out.println("2. Convert Currency");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+
+            String choiceInput = sc.nextLine().trim();
+            int choice = 0;
+            
+            try {
+                choice = Integer.parseInt(choiceInput);
+            } catch (NumberFormatException e) {
+                choice = 0;
+            }
+
+            switch (choice) {
+                case 1:
+                    displayCurrencies();
+                    break;
+
+                case 2:
+                    convertCurrency(sc);
+                    break;
+
+                case 3:
+                    System.out.println("\nThank you for using Currency Converter!");
+                    running = false;
+                    break;
+
+                default:
+                    System.out.println("Invalid choice. Please enter 1, 2, or 3.");
+            }
+        }
+        sc.close();
+    }
+
+    // Helper method to display all currency choices
+    private static void displayCurrencies() {
+        System.out.println("\nCode\tCurrency Name");
+        System.out.println("----------------------------------");
+        for (int i = 0; i < CODES.length; i++) {
+            System.out.printf("%-6s\t%s%n", CODES[i], NAMES[i]);
+        }
+    }
+
+    // Main conversion logic
+    private static void convertCurrency(Scanner sc) {
+        int sourceIndex = getValidCurrency(sc, "source");
+        int targetIndex = getValidCurrency(sc, "target");
+
+        double amount = getValidAmount(sc);
+
+        // Convert Source Currency -> USD -> Target Currency
+        double amountInUSD = amount / RATES_TO_USD[sourceIndex];
+        double convertedAmount = amountInUSD * RATES_TO_USD[targetIndex];
+
+        System.out.printf("%n%.2f %s = %.2f %s%n", 
+                          amount, CODES[sourceIndex], convertedAmount, CODES[targetIndex]);
+        
+        System.out.println("\n--> Press Enter to continue. <--");
+        sc.nextLine();
+    }
+
+    // Prompts user for a valid currency code and returns its index
+    private static int getValidCurrency(Scanner sc, String type) {
+        while (true) {
+            System.out.print("Enter " + type + " currency code (e.g., USD, INR): ");
+            String input = sc.nextLine().trim().toUpperCase();
+
+            for (int i = 0; i < CODES.length; i++) {
+                if (CODES[i].equals(input)) {
+                    return i;
+                }
+            }
+            System.out.println("Invalid currency code! Please try again.\n");
+        }
+    }
+
+    // Prompts user for a positive numerical amount (VS Code terminal friendly)
+    private static double getValidAmount(Scanner sc) {
+        double amount = 0;
+        while (amount <= 0) {
+            System.out.print("Enter amount to convert: ");
+            String input = sc.nextLine().trim();
+            try {
+                amount = Double.parseDouble(input);
+                if (amount <= 0) {
+                    System.out.println("Amount must be greater than zero.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+        return amount;
+    }
+}
